@@ -3,6 +3,7 @@ package main
 import (
 	// gin
 	"fmt"
+	"log"
 	"os"
 
 	"main.go/controller"
@@ -18,7 +19,7 @@ func main() {
 	// load .env
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Println("Error loading .env file")
+		log.Panic("Error loading .env file")
 	}
 
 	// init database

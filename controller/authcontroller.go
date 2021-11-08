@@ -59,10 +59,8 @@ func (a *authController) Login(c *gin.Context) {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	log.Println(user)
 	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(data["password"])); err != nil {
 		c.JSON(401, gin.H{"error": "Invalid credentials"})
-		log.Println(err)
 		return
 	}
 	token, err, expire := a.AuthService.TokenGenerator(user)
