@@ -39,6 +39,9 @@ func main() {
 
 	// run server with auto tls
 	// r.RunTLS(":443", "./cert/server.crt", "./cert/server.key")
-
-	r.Run(":8080")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	r.Run(":" + port)
 }
