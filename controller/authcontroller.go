@@ -13,6 +13,7 @@ type AuthController interface {
 	Login(c *gin.Context)
 	User(c *gin.Context)
 	DeleteUser(c *gin.Context)
+	RefreshToken(c *gin.Context)
 }
 
 type authController struct {
@@ -64,12 +65,12 @@ func (a *authController) Login(c *gin.Context) {
 		log.Println(err)
 		return
 	}
-	token, err := a.AuthService.TokenGenerator(user)
+	token, err, expire := a.AuthService.TokenGenerator(user)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, gin.H{"token": token})
+	c.JSON(200, gin.H{"token": token, "expire_date": expire})
 	return
 }
 
@@ -107,4 +108,24 @@ func (a *authController) DeleteUser(c *gin.Context) {
 	}
 	c.JSON(200, gin.H{"message": "User deleted successfully"})
 	return
+}
+
+// RefreshToken
+func (a *authController) RefreshToken(c *gin.Context) {
+	email, ok := c.Get("email")
+	if !ok {
+		c.JSON(401, gin.H{"error": "Unauthorized"})
+		return
+	}
+	user, err := a.AuthService.FindByEmail(email.(string))
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	token, err, expire := a.AuthService.TokenGenerator(user)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"token": token, "expire_date": expire})
 }

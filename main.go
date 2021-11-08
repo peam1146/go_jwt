@@ -35,6 +35,7 @@ func main() {
 	auth.Use(middlewares.JWTMiddleware())
 	{
 		auth.GET("/user", authController.User)
+		auth.GET("/refresh-token", authController.RefreshToken)
 	}
 
 	// run server with auto tls

@@ -16,7 +16,7 @@ type AuthServices interface {
 	CreateUser(email string, password []byte, name string) error
 	FindByEmail(email string) (*models.User, error)
 	DeleteUser(*models.User) error
-	TokenGenerator(*models.User) (string, error)
+	TokenGenerator(*models.User) (string, error, string)
 }
 
 type authServices struct {
@@ -46,12 +46,14 @@ func (a *authServices) DeleteUser(user *models.User) error {
 	return a.DB.Delete(user).Error
 }
 
-// generate token
-func (a *authServices) TokenGenerator(user *models.User) (string, error) {
+// generate token with expire time
+func (a *authServices) TokenGenerator(user *models.User) (string, error, string) {
+	exp := time.Now().Add(time.Second * 60)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"email": user.Email,
 		"name":  user.Name,
-		"exp":   time.Now().Add(time.Second * 60).Unix(),
+		"exp":   exp.Unix(),
 	})
-	return token.SignedString([]byte(os.Getenv("SECRET_KEY")))
+	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET_KEY")))
+	return tokenString, err, exp.Format(time.RFC3339)
 }
