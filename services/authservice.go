@@ -1,6 +1,7 @@
 package services
 
 import (
+	"os"
 	"time"
 
 	"gorm.io/gorm"
@@ -52,5 +53,5 @@ func (a *authServices) TokenGenerator(user *models.User) (string, error) {
 		"name":  user.Name,
 		"exp":   time.Now().Add(time.Second * 60).Unix(),
 	})
-	return token.SignedString([]byte("secret"))
+	return token.SignedString([]byte(os.Getenv("SECRET_KEY")))
 }
