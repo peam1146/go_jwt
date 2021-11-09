@@ -1,8 +1,6 @@
 package main
 
 import (
-	// gin
-	"fmt"
 	"log"
 	"os"
 

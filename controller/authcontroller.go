@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"main.go/services"
