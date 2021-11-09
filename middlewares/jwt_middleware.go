@@ -26,6 +26,11 @@ func JWTMiddleware() gin.HandlerFunc {
 			return
 		}
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+			// check issuer
+			if claims["iss"] != os.Getenv("JWT_ISSUER") {
+				c.AbortWithStatus(401)
+				return
+			}
 			c.Set("name", claims["name"])
 			c.Set("id", claims["id"])
 			c.Set("email", claims["email"])

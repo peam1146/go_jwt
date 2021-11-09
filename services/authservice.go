@@ -53,6 +53,7 @@ func (a *authServices) TokenGenerator(user *models.User) (string, error, string)
 		"email": user.Email,
 		"name":  user.Name,
 		"exp":   exp.Unix(),
+		"iss":   os.Getenv("JWT_ISSUER"),
 	})
 	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET_KEY")))
 	return tokenString, err, exp.Format(time.RFC3339)
