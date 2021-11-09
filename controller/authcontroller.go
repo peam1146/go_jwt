@@ -9,6 +9,7 @@ import (
 type AuthController interface {
 	Register(c *gin.Context)
 	Login(c *gin.Context)
+	Logout(c *gin.Context)
 	User(c *gin.Context)
 	DeleteUser(c *gin.Context)
 	RefreshToken(c *gin.Context)
@@ -41,8 +42,6 @@ func (a *authController) Register(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{"message": "User created successfully"})
-	return
-
 }
 
 // Login
@@ -52,6 +51,7 @@ func (a *authController) Login(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
+
 	user, err := a.AuthService.FindByEmail(data["email"])
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
@@ -66,8 +66,17 @@ func (a *authController) Login(c *gin.Context) {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, gin.H{"token": token, "expire_date": expire})
-	return
+
+	// set token to cookie
+	c.SetCookie("token", token, int(expire.Unix()), "/", "", false, true)
+	// send expire date with Access-Control-Allow-Origin: *
+	c.JSON(200, gin.H{"expire_date": expire})
+}
+
+// Logout
+func (a *authController) Logout(c *gin.Context) {
+	c.SetCookie("token", "", -1, "/", "", false, true)
+	c.JSON(200, gin.H{"message": "Logout successfully"})
 }
 
 // user
@@ -83,7 +92,6 @@ func (a *authController) User(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{"user": user})
-	return
 }
 
 // DeleteUser
@@ -103,7 +111,6 @@ func (a *authController) DeleteUser(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{"message": "User deleted successfully"})
-	return
 }
 
 // RefreshToken
@@ -123,5 +130,7 @@ func (a *authController) RefreshToken(c *gin.Context) {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, gin.H{"token": token, "expire_date": expire})
+	// set token to cookie
+	c.SetCookie("token", token, int(expire.Unix()), "/", "", false, true)
+	c.JSON(200, gin.H{"expire_date": expire})
 }

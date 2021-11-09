@@ -10,8 +10,9 @@ import (
 
 func JWTMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tokenString := c.Request.Header.Get("Authorization")
-		if tokenString == "" {
+		// get token from cookie
+		tokenString, err := c.Cookie("token")
+		if err != nil {
 			c.AbortWithStatus(401)
 			return
 		}

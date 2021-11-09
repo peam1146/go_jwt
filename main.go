@@ -27,8 +27,16 @@ func main() {
 
 	r := gin.Default()
 
+	// check server status
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
+
 	r.POST("/register", authController.Register)
-	r.GET("/login", authController.Login)
+	r.POST("/login", authController.Login)
+	r.GET("/logout", authController.Logout)
 	// authentication middleware group
 	auth := r.Group("/auth")
 	auth.Use(middlewares.JWTMiddleware())
